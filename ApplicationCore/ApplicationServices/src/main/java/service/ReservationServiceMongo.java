@@ -1,16 +1,11 @@
 package service;
 
-import com.example.controller.exception.*;
-import com.example.domain.Client;
-import com.example.domain.Reservation;
-import com.example.mappers.ReservationMapper;
-import com.example.model.CreateReservationDTO;
-import com.example.model.ShowReservationDTO;
-import com.example.repository.ReservationRepository;
-import com.example.repository.RoomRepository;
-import com.example.repository.UserRepository;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
+import control.reservation.AddReservationUseCase;
+import control.reservation.GetReservationUseCase;
+import control.reservation.RemoveReservationUseCase;
+import control.reservation.UpdateReservationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -22,7 +17,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class ReservationServiceMongo implements ReservationService {
+public class ReservationServiceMongo implements AddReservationUseCase, GetReservationUseCase, RemoveReservationUseCase, UpdateReservationUseCase {
     private final ReservationRepository repository;
     private final MongoClient mongoClient;
     private final ReservationMapper reservationMapper;

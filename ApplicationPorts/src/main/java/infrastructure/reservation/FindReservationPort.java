@@ -2,7 +2,6 @@ package infrastructure.reservation;
 
 
 import domain.Reservation;
-import domain.Room;
 
 import java.util.List;
 import java.util.Optional;

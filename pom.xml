@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>ApplicationCore</module>
-        <module>Apadters</module>
+        <module>Adapters</module>
         <module>ApplicationPorts</module>
     </modules>
 

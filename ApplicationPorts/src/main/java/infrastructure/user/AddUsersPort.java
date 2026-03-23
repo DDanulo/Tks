@@ -5,7 +5,7 @@ import domain.Client;
 import domain.Moderator;
 
 public interface AddUsersPort {
-    void addClient(Client client);
-    void addAdmin(Admin admin);
-    void addModerator(Moderator moderator);
+    Client addClient(Client client);
+    Admin addAdmin(Admin admin);
+    Moderator addModerator(Moderator moderator);
 }

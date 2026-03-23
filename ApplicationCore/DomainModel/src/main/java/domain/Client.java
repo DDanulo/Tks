@@ -1,8 +1,6 @@
 package domain;
 
-import com.example.model.users.Role;
 import lombok.*;
-import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.types.ObjectId;
 
 @Getter

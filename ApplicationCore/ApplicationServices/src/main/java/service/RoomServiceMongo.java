@@ -11,7 +11,6 @@ import infrastructure.room.FindRoomPort;
 import infrastructure.room.RemoveRoomPort;
 import infrastructure.room.UpdateRoomPort;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class RoomServiceMongo implements AddRoomUseCase, UpdateRoomUseCase, Remo
     private final RemoveRoomPort removeRoomPort;
 
     @Override
-    public domain.Room add(domain.Room room) {
+    public Room add(Room room) {
         if (room == null) {
             throw new IllegalArgumentException();
         }
@@ -41,7 +40,7 @@ public class RoomServiceMongo implements AddRoomUseCase, UpdateRoomUseCase, Remo
     }
 
     @Override
-    public List<domain.Room> GetAllRooms() {
+    public List<Room> GetAllRooms() {
         return findRoomPort.findAll();
     }
 

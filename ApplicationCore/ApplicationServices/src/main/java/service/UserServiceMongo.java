@@ -1,173 +1,120 @@
 package service;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.mongodb.client.ClientSession;
 import control.user.AddUserUseCase;
+import control.user.GetUserUseCase;
+import control.user.UpdateUserUseCase;
 import domain.*;
+import exception.NotFoundException;
 import exception.SameLoginException;
 import infrastructure.user.AddUsersPort;
 import infrastructure.user.FindUsersPort;
 import infrastructure.user.RemoveUserPort;
 import infrastructure.user.UpdateUsersPort;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class UserServiceMongo implements AddUserUseCase {
-
-//    private final UserRepository repository;
-//    private final MongoClient mongoClient;
-//    private final UserMapper userMapper;
+public class UserServiceMongo implements
+        AddUserUseCase,
+        UpdateUserUseCase,
+        GetUserUseCase {
 
     private final AddUsersPort addUserPort;
     private final FindUsersPort findUsersPort;
     private final UpdateUsersPort updateUsersPort;
     private final RemoveUserPort removeUserPort;
 
-    @Override
-    public void registerClient(CreateClientDTO dto) {
-        if (dto == null) throw new IllegalArgumentException("DTO cannot be null");
-        if (repository.findByLogin(dto.getLogin()).isPresent()) {
-            throw new SameLoginException("Login zajęty");
-        }
-        try (ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-            try {
-                Client client = userMapper.toClient(dto);
-                String hashedPassword = BCrypt.withDefaults().hashToString(12, dto.getPassword().toCharArray());
-                client.setPassword(hashedPassword);
-                repository.add(session, client);
-                session.commitTransaction();
-            } catch (Exception e) {
-                session.abortTransaction();
-                throw new RuntimeException("Cannot add Client", e);
-            }
-        }
-    }
-
-    @Override
-    public void registerAdmin(CreateAdminDTO dto) {
-        if (dto == null) throw new IllegalArgumentException("DTO cannot be null");
-        try (ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-            try {
-                Admin admin = userMapper.toAdmin(dto);
-                String hashedPassword = BCrypt.withDefaults().hashToString(12, dto.getPassword().toCharArray());
-                admin.setPassword(hashedPassword);
-                repository.add(session, admin);
-                session.commitTransaction();
-            } catch (Exception e) {
-                session.abortTransaction();
-                throw new RuntimeException("Cannot add Admin", e);
-            }
-        }
-    }
-
-    @Override
-    public void registerModerator(CreateModeratorDTO dto) {
-        if (dto == null) throw new IllegalArgumentException("DTO cannot be null");
-        try (ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-            try {
-                Moderator moderator = userMapper.toModerator(dto);
-                String hashedPassword = BCrypt.withDefaults().hashToString(12, dto.getPassword().toCharArray());
-                moderator.setPassword(hashedPassword);
-                repository.add(session, moderator);
-                session.commitTransaction();
-            } catch (Exception e) {
-                session.abortTransaction();
-                throw new RuntimeException("Cannot add Moderator", e);
-            }
-        }
-    }
 
     @Override
     public User findByLogin(String login) {
-        return findUsersPort.findByLogin(login).orElse(null);
+        return findUsersPort.findByLogin(login).orElseThrow(NotFoundException::new);
     }
 
     @Override
-    public Optional<ShowUserDTO> findUser(String id) {
-        return repository.findById(new ObjectId(id)).map(userMapper::UserToDto);
+    public User findById(String id) {
+        return findUsersPort.findById(id).orElseThrow(NotFoundException::new);
     }
 
     @Override
-    public List<ShowUserDTO> getAllUsers() {
-        return repository.findAll().stream().map(userMapper::UserToDto).toList();
+    public List<User> findAll() {
+        return findUsersPort.findAll();
     }
 
     @Override
-    public void updateClient(String id, UpdateUserDTO dto) {
-        org.bson.types.ObjectId objectId = new org.bson.types.ObjectId(id);
+    public Client registerClient(Client client) {
+        if (client == null) {
+            throw new IllegalArgumentException("DTO cannot be null");
+        }
+        if (findUsersPort.findByLogin(client.getLogin()).isPresent()) {
+            throw new SameLoginException("Login zajęty");
+        }
+        String hashedPassword = BCrypt.withDefaults().hashToString(12, client.getPassword().toCharArray());
+        client.setPassword(hashedPassword);
+        addUserPort.addClient(client);
+        return client;
+    }
 
-        User user = repository.findById(objectId)
+    @Override
+    public Admin registerAdmin(Admin admin) {
+        if (admin == null) {
+            throw new IllegalArgumentException("DTO cannot be null");
+        }
+        if (findUsersPort.findByLogin(admin.getLogin()).isPresent()) {
+            throw new SameLoginException("Login zajęty");
+        }
+        String hashedPassword = BCrypt.withDefaults().hashToString(12, admin.getPassword().toCharArray());
+        admin.setPassword(hashedPassword);
+        addUserPort.addAdmin(admin);
+        return admin;
+    }
+
+    @Override
+    public Moderator registerModerator(Moderator moderator) {
+        if (moderator == null) {
+            throw new IllegalArgumentException("DTO cannot be null");
+        }
+        if (findUsersPort.findByLogin(moderator.getLogin()).isPresent()) {
+            throw new SameLoginException("Login zajęty");
+        }
+        String hashedPassword = BCrypt.withDefaults().hashToString(12, moderator.getPassword().toCharArray());
+        moderator.setPassword(hashedPassword);
+        addUserPort.addModerator(moderator);
+        return moderator;
+    }
+
+    @Override
+    public User updateUser(String id, User user) {
+
+        User userEdited = findUsersPort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Client not found"));
-
-        try (com.mongodb.client.ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-            try {
-                userMapper.updateUserFromDto(dto, user);
-
-                repository.update(session, objectId, user);
-
-                session.commitTransaction();
-            } catch (Exception e) {
-                session.abortTransaction();
-                throw new RuntimeException("Cannot update Client", e);
-            }
+        if (user.getFirstName() != null) {
+            userEdited.setFirstName(user.getFirstName());
         }
-    }
-
-    @Override
-    public Optional<ShowUserDTO> getClientByLogin(String login) {
-        return repository.findByLogin(login).map(userMapper::UserToDto);
-    }
-
-    @Override
-    public List<ShowUserDTO> findClientsByLogin(String login) {
-        return repository.searchByLogin(login).stream().map(userMapper::UserToDto).toList();
-    }
-
-    @Override
-    public void activateClient(String id) {
-        ObjectId objectId = new ObjectId(id);
-        repository.activateAccount(null, objectId);
-    }
-
-    @Override
-    public void deactivateClient(String id) {
-        ObjectId objectId = new ObjectId(id);
-        repository.deactivateAccount(null, objectId);
-    }
-
-    @Override
-    public void changePassword(String id, ChangePasswordDTO dto) {
-        ObjectId objectId = new ObjectId(id);
-        User user = repository.findById(objectId)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika"));
-
-        BCrypt.Result result = BCrypt.verifyer().verify(dto.getOldPassword().toCharArray(), user.getPassword());
-        if (!result.verified) {
-            throw new IllegalArgumentException("Wprowadzone obecne hasło jest niepoprawne");
+        if (user.getLastName() != null) {
+            userEdited.setLastName(user.getLastName());
         }
-
-        String hashedNewPassword = BCrypt.withDefaults().hashToString(12, dto.getNewPassword().toCharArray());
-
-        try (ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-            try {
-                user.setPassword(hashedNewPassword);
-                repository.update(session, objectId, user);
-                session.commitTransaction();
-            } catch (Exception e) {
-                session.abortTransaction();
-                throw new RuntimeException("Nie można zmienić hasła", e);
-            }
+        if (user.getEmail() != null) {
+            userEdited.setEmail(user.getEmail());
         }
+        return updateUsersPort.update(id, (Client) user);
+    }
+
+    @Override
+    public void activateUser(String id) {
+        updateUsersPort.activateAccount(id);
+    }
+
+    @Override
+    public void deactivateUser(String id) {
+        updateUsersPort.deactivateAccount(id);
+    }
+
+    @Override
+    public void changePassword(String id, User user) {
+        updateUsersPort.update(id, (Client)user);
     }
 }
