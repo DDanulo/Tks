@@ -14,57 +14,51 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-
     public User EntityToUser(UserEntity user) {
         if (user == null) return null;
 
-        User base = User.builder()
-                .userId(user.getUserId().toString())
-                .login(user.getLogin())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole())
-                .isActive(user.getIsActive())
-                .build();
+        return switch (user) {
+            case ClientEntity c -> Client.builder()
+                    .userId(c.getUserId() != null ? c.getUserId().toString() : null)
+                    .login(c.getLogin())
+                    .password(c.getPassword())
+                    .email(c.getEmail())
+                    .firstName(c.getFirstName())
+                    .lastName(c.getLastName())
+                    .isActive(c.getIsActive())
+                    .role(c.getRole())
+                    .build();
 
-        switch (user) {
-            case ClientEntity client -> {
-                Client entity = new Client();
-                copyBase(base, entity);
-                return entity;
-            }
-            case ModeratorEntity moderator -> {
-                Moderator dto = new Moderator();
-                copyBase(base, dto);
-                return dto;
-            }
-            case AdminEntity admin -> {
-                Admin dto = new Admin();
-                copyBase(base, dto);
-                return dto;
-            }
-            default -> {
-                return base;
-            }
-        }
+            case ModeratorEntity m -> Moderator.builder()
+                    .userId(m.getUserId() != null ? m.getUserId().toString() : null)
+                    .login(m.getLogin())
+                    .password(m.getPassword())
+                    .email(m.getEmail())
+                    .firstName(m.getFirstName())
+                    .lastName(m.getLastName())
+                    .isActive(m.getIsActive())
+                    .role(m.getRole())
+                    .build();
+
+            case AdminEntity a -> Admin.builder()
+                    .userId(a.getUserId() != null ? a.getUserId().toString() : null)
+                    .login(a.getLogin())
+                    .password(a.getPassword())
+                    .email(a.getEmail())
+                    .firstName(a.getFirstName())
+                    .lastName(a.getLastName())
+                    .isActive(a.getIsActive())
+                    .role(a.getRole())
+                    .build();
+
+            default -> throw new IllegalArgumentException();
+        };
     }
-
-
-    private void copyBase(User base, User target) {
-        target.setLogin(base.getLogin());
-        target.setUserId(base.getUserId());
-        target.setEmail(base.getEmail());
-        target.setFirstName(base.getFirstName());
-        target.setLastName(base.getLastName());
-        target.setIsActive(base.getIsActive());
-        target.setRole(base.getRole());
-    }
-
 
     public ClientEntity toClientEntity(Client dto) {
         ClientEntity client = new ClientEntity();
         client.setLogin(dto.getLogin());
+        client.setPassword(dto.getPassword());
         client.setEmail(dto.getEmail());
         client.setFirstName(dto.getFirstName());
         client.setLastName(dto.getLastName());
@@ -76,6 +70,7 @@ public class UserMapper {
     public ModeratorEntity toModeratorEntity(Moderator dto) {
         ModeratorEntity moderator = new ModeratorEntity();
         moderator.setLogin(dto.getLogin());
+        moderator.setPassword(dto.getPassword());
         moderator.setEmail(dto.getEmail());
         moderator.setFirstName(dto.getFirstName());
         moderator.setLastName(dto.getLastName());
@@ -87,6 +82,7 @@ public class UserMapper {
     public AdminEntity toAdminEntity(Admin dto) {
         AdminEntity admin = new AdminEntity();
         admin.setLogin(dto.getLogin());
+        admin.setPassword(dto.getPassword());
         admin.setEmail(dto.getEmail());
         admin.setFirstName(dto.getFirstName());
         admin.setLastName(dto.getLastName());

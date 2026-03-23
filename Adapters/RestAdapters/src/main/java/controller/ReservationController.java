@@ -1,5 +1,7 @@
 package controller;
 
+import aggregates.ReservationControllerAdapter;
+import exception.NotFoundException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +20,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class ReservationController {
-//    private final ReservationService reservationService;
+
+    private final ReservationControllerAdapter reservationControllerAdapter;
 
     @PostMapping
     public void createReservation(@RequestBody @Valid CreateReservationDTO reservationDTO){
-        reservationService.makeReservation(reservationDTO);
+        reservationControllerAdapter.createReservation(reservationDTO);
     }
 
     @GetMapping("/{id}")
     @RolesAllowed("ADMIN")
     public ShowReservationDTO getReservationById(@PathVariable String id) {
-        ShowReservationDTO dto = reservationService.findReservation(id)
+        ShowReservationDTO dto = reservationControllerAdapter.getOneReservationById(id)
                 .orElseThrow(NotFoundException::new);
 
         return addHateoasLinks(dto);
@@ -36,7 +39,7 @@ public class ReservationController {
 
     @GetMapping
     public List<ShowReservationDTO> getAllReservations() {
-        return reservationService.getAllReservations().stream()
+        return reservationControllerAdapter.getAllReservations().stream()
                 .map(this::addHateoasLinks)
                 .toList();
     }
@@ -45,12 +48,12 @@ public class ReservationController {
     @RolesAllowed("ADMIN")
     public void updateReservation(@PathVariable String id,
                              @RequestBody @Valid CreateReservationDTO reservationDTO){
-        reservationService.updateReservation(id, reservationDTO);
+        reservationControllerAdapter.updateReservation(id, reservationDTO);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable String id){
-        reservationService.removeReservation(id);
+        reservationControllerAdapter.removeReservationById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -61,8 +64,8 @@ public class ReservationController {
             @RequestParam(required = false, defaultValue = "current") String status) {
 
         return switch (status) {
-            case "current" -> reservationService.findCurrentForClient(clientId);
-            case "past"    -> reservationService.findPastForClient(clientId);
+            case "current" -> reservationControllerAdapter.findCurrentForClient(clientId);
+            case "past"    -> reservationControllerAdapter.findPastForClient(clientId);
             default        -> throw new IllegalArgumentException("status must be current|past");
         };
     }
@@ -74,16 +77,16 @@ public class ReservationController {
             @RequestParam(required = false, defaultValue = "current") String status) {
 
         return switch (status) {
-            case "current" -> reservationService.findCurrentForRoom(roomId);
-            case "past"    -> reservationService.findPastForRoom(roomId);
-            default        ->  reservationService.getAllReservations();
+            case "current" -> reservationControllerAdapter.findCurrentForRoom(roomId);
+            case "past"    -> reservationControllerAdapter.findPastForRoom(roomId);
+            default        ->  reservationControllerAdapter.getAllReservations();
         };
     }
 
     @PostMapping("/{id}/end")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Void> endReservation(@PathVariable String id){
-        reservationService.endReservation(id);
+        reservationControllerAdapter.endReservation(id);
         return ResponseEntity.ok().build();
     }
 

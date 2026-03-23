@@ -3,13 +3,17 @@ package domain;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 public abstract class User {
     private String userId;
 
@@ -39,11 +43,4 @@ public abstract class User {
     @NotNull
     private Role role;
 
-//    public User(String login, String firstName, String lastName, String email, String password) {
-//        this.login = login;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.email = email;
-//        this.password = password;
-//    }
 }

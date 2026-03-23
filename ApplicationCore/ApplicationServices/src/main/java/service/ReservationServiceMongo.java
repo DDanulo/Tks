@@ -1,16 +1,17 @@
 package service;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.MongoClient;
 import control.reservation.AddReservationUseCase;
 import control.reservation.GetReservationUseCase;
 import control.reservation.RemoveReservationUseCase;
 import control.reservation.UpdateReservationUseCase;
+import domain.Reservation;
+import infrastructure.reservation.AddReservationPort;
+import infrastructure.reservation.FindReservationPort;
+import infrastructure.reservation.RemoveReservationPort;
+import infrastructure.reservation.UpdateReservationPort;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,171 +19,83 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class ReservationServiceMongo implements AddReservationUseCase, GetReservationUseCase, RemoveReservationUseCase, UpdateReservationUseCase {
-    private final ReservationRepository repository;
-    private final MongoClient mongoClient;
-    private final ReservationMapper reservationMapper;
-    private final UserRepository userRepository;
-    private final RoomRepository roomRepository;
 
+    private final AddReservationPort addReservationPort;
+    private final RemoveReservationPort removeReservationPort;
+    private final UpdateReservationPort updateReservationPort;
+    private final FindReservationPort findReservationPort;
 
     @Override
-    public void makeReservation(CreateReservationDTO reservation) {
-        try (ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-
-            LocalDateTime start = reservation.getStartTime();
-            List<ShowReservationDTO> allReservations = getAllReservations();
-
-            for (ShowReservationDTO r : allReservations) {
-                if (reservation.getRoomId().equals(r.getRoomId()) && r.getEndTime() == null) {
-                    throw new RoomIsReservedException();
-                }
-            }
-
-            if (!userRepository.findById(new ObjectId(reservation.getClientId()))
-                    .orElseThrow(NotFoundException::new).getIsActive()) {
-                throw new AccountNotActiveException();
-            }
-
-            Reservation r = reservationMapper.createReservationDTOToReservation(reservation);
-            r.setClient((Client) userRepository.findById(new ObjectId(reservation.getClientId()))
-                    .orElseThrow(UserNotLoggedInException::new));
-            r.setRoom(roomRepository.findById(new ObjectId(reservation.getRoomId()))
-                    .orElseThrow(NotFoundException::new));
-            r.setPrice(0d);
-            repository.add(session, r);
-
-            session.commitTransaction();
-
+    public Reservation add(Reservation reservation) {
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation cannot be null");
         }
+        return addReservationPort.add(reservation);
     }
 
     @Override
-    public List<ShowReservationDTO> getAllReservations() {
-        return repository.findAll().stream().map(reservationMapper::reservationToShowReservationDTO).toList();
+    public Optional<Reservation> findOneReservationById(String Id) {
+        return findReservationPort.findById(Id);
     }
 
     @Override
-    public Optional<ShowReservationDTO> findReservation(String id) {
-        ObjectId objectId = new ObjectId(id);
-        return repository.findById(objectId).map(reservationMapper::reservationToShowReservationDTO);
+    public List<Reservation> findAllReservations() {
+        return findReservationPort.findAll();
     }
 
     @Override
-    public void removeReservation(String id) {
-        ObjectId objectId = new ObjectId(id);
+    public void removeReservation(String Id) {
+        if (Id == null) {
+            throw new IllegalArgumentException("Reservation Id cannot be null");
+        }
+        if (findOneReservationById(Id).isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
-        if (findReservation(id).isEmpty()) {
-            throw new NotFoundException("Reservation not found");
-        }
-        if (findReservation(id).get().getEndTime() != null) {
-            throw new ReservationHasEndedException();
-        }
-        try (ClientSession session = mongoClient.startSession()) {
-            session.withTransaction(() -> {
-                repository.remove(session, objectId);
-                return null;
-            });
-        }
+        removeReservationPort.remove(Id);
     }
 
     @Override
-    public void updateReservation(String id, CreateReservationDTO res) {
-        if (id == null) {
-            throw new NotFoundException("Wrong reservation id");
+    public Reservation update(String id, Reservation obj) {
+        if (findOneReservationById(id).isEmpty()) {
+            throw new IllegalArgumentException();
         }
-        if (findReservation(id).isEmpty()) {
-            throw new NotFoundException("Reservation not found");
-        }
-        ObjectId objectId = new ObjectId(id);
-        try (ClientSession session = mongoClient.startSession()) {
-            session.withTransaction(() -> {
-                repository.update(session, objectId, reservationMapper.createReservationDTOToReservation(res));
-                return null;
-            });
-        }
+        return updateReservationPort.update(id, obj);
     }
 
     @Override
-    public List<ShowReservationDTO> findCurrentForClient(String clientId) {
-        ObjectId objectId = new ObjectId(clientId);
-        List<Reservation> reservations = repository.findByClient(objectId);
-        System.out.println(reservations);
-        return repository.findByClient(objectId)
-                .stream()
-                .filter(reservation1 -> reservation1.getEndTime() == null)
-                .map(reservationMapper::reservationToShowReservationDTO)
+    public List<Reservation> findCurrentByClientId(String clientId) {
+        return findReservationPort.findByUser(clientId).stream()
+                .filter(res -> res.getEndTime() == null || res.getEndTime().isAfter(LocalDateTime.now()))
                 .toList();
     }
 
     @Override
-    public List<ShowReservationDTO> findPastForClient(String clientId) {
-        ObjectId objectId = new ObjectId(clientId);
-        return repository.findByClient(objectId)
-                .stream()
-                .filter(reservation1 -> reservation1.getEndTime() != null)
-                .map(reservationMapper::reservationToShowReservationDTO)
+    public List<Reservation> findPastByClientId(String clientId) {
+        return findReservationPort.findByUser(clientId).stream()
+                .filter(res -> res.getEndTime() != null && res.getEndTime().isBefore(LocalDateTime.now()))
                 .toList();
     }
 
     @Override
-    public List<ShowReservationDTO> findAllForClient(String clientId) {
-        ObjectId objectId = new ObjectId(clientId);
-        return repository.findByClient(objectId)
-                .stream()
-                .map(reservationMapper::reservationToShowReservationDTO)
+    public List<Reservation> findCurrentByRoomId(String roomId) {
+        return findReservationPort.findByUser(roomId).stream()
+                .filter(res -> res.getEndTime() == null || res.getEndTime().isAfter(LocalDateTime.now()))
                 .toList();
     }
 
     @Override
-    public List<ShowReservationDTO> findCurrentForRoom(String roomId) {
-        ObjectId objectId = new ObjectId(roomId);
-        return repository.findByRoom(objectId)
-                .stream()
-                .filter(reservation1 -> reservation1.getEndTime().isAfter(LocalDateTime.now()))
-                .map(reservationMapper::reservationToShowReservationDTO)
-                .toList();
-    }
-
-    @Override
-    public List<ShowReservationDTO> findPastForRoom(String roomId) {
-        ObjectId objectId = new ObjectId(roomId);
-        return repository.findByRoom(objectId)
-                .stream()
-                .filter(reservation1 -> reservation1.getEndTime().isBefore(LocalDateTime.now()))
-                .map(reservationMapper::reservationToShowReservationDTO)
+    public List<Reservation> findPastByRoomId(String roomId) {
+        return findReservationPort.findByUser(roomId).stream()
+                .filter(res -> res.getEndTime() != null && res.getEndTime().isBefore(LocalDateTime.now()))
                 .toList();
     }
 
     @Override
     public void endReservation(String id) {
-        ObjectId objectId = new ObjectId(id);
-        try (ClientSession session = mongoClient.startSession()) {
-            session.startTransaction();
-            Reservation reservation = repository.findById(objectId).orElseThrow(NotFoundException::new);
-            if (reservation.getEndTime() != null) {
-                session.abortTransaction();
-                throw new ReservationHasEndedException();
-            }
-            LocalDateTime endTime = LocalDateTime.now();
-            if (endTime.isBefore(reservation.getStartTime())){
-                session.abortTransaction();
-                throw new ReservationEndsBeforeStarting();
-            }
-            reservation.setEndTime(endTime);
-
-            Duration duration = Duration.between(reservation.getStartTime(), reservation.getEndTime());
-            long reservationTime = duration.toHours();
-
-            if (reservationTime < 1) {
-                reservationTime = 1;
-            }
-            System.out.println(reservationTime);
-            double resPrice = reservation.getRoom().getBasePrice() * reservationTime;
-            System.out.println(resPrice);
-            reservation.setPrice(resPrice);
-            repository.update(session, objectId, reservation);
-            session.commitTransaction();
-        }
+        Reservation res = findReservationPort.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException());
+        res.setEndTime(LocalDateTime.now());
+        updateReservationPort.update(id, res);
     }
 }

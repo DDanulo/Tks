@@ -115,6 +115,6 @@ public class UserServiceMongo implements
 
     @Override
     public void changePassword(String id, User user) {
-        updateUsersPort.update(id, (Client)user);
+        updateUsersPort.update(id, (Client) user);
     }
 }

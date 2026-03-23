@@ -24,8 +24,13 @@ public class ReservationRepositoryAdapter implements
     private final ReservationMapper reservationMapper;
 
     @Override
-    public void add(Reservation reservation) {
-        repository.add(reservationMapper.toEntity(reservation));
+    public Reservation add(Reservation reservation) {
+        return reservationMapper.toReservation(repository.add(reservationMapper.toEntity(reservation)));
+    }
+
+    @Override
+    public Reservation update(String id, Reservation obj) {
+        return reservationMapper.toReservation(repository.update(new ObjectId(id), reservationMapper.toEntity(obj)));
     }
 
     @Override
@@ -51,10 +56,5 @@ public class ReservationRepositoryAdapter implements
     @Override
     public void remove(String reservation) {
         repository.remove(new ObjectId(reservation));
-    }
-
-    @Override
-    public void update(String id, Reservation obj) {
-        repository.update(new ObjectId(id), reservationMapper.toEntity(obj));
     }
 }

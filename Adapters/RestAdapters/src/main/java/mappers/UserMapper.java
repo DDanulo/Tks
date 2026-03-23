@@ -91,21 +91,34 @@ public class UserMapper {
     }
 
     public User updateUserFromDto(UpdateUserDTO dto) {
-        return User.builder()
-                .userId(null)
-                .login(dto.getLogin())
-                .password(null)
-                .firstName(dto.getFirstName())
-                .lastName(dto.getLastName())
-                .email(dto.getEmail())
-                .isActive(null)
-                .role(dto.getRole())
-                .build();
-
+        return switch (dto.getRole()) {
+            case ADMIN -> Admin.builder()
+                    .login(dto.getLogin())
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
+                    .email(dto.getEmail())
+                    .role(dto.getRole())
+                    .build();
+            case MODERATOR -> Moderator.builder()
+                    .login(dto.getLogin())
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
+                    .email(dto.getEmail())
+                    .role(dto.getRole())
+                    .build();
+            case CLIENT -> Client.builder()
+                    .login(dto.getLogin())
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
+                    .email(dto.getEmail())
+                    .role(dto.getRole())
+                    .build();
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public User updateUserFromChangePassword(ChangePasswordDTO dto) {
-        return User.builder()
+        return Client.builder()
                 .userId(null)
                 .login(null)
                 .password(dto.getNewPassword())
@@ -115,6 +128,5 @@ public class UserMapper {
                 .isActive(null)
                 .role(null)
                 .build();
-
     }
 }

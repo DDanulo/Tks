@@ -1,5 +1,6 @@
 package model.users;
 
+import domain.Role;
 import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)

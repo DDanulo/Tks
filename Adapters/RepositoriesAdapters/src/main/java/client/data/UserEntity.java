@@ -3,7 +3,11 @@ package client.data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -14,7 +18,7 @@ import org.bson.types.ObjectId;
 @Getter
 @Setter
 @BsonDiscriminator(key = "clazz", value = "user")
-@Builder
+@SuperBuilder
 public abstract class UserEntity {
     @NotNull
     @BsonId
@@ -53,11 +57,4 @@ public abstract class UserEntity {
     @BsonProperty("role")
     private domain.Role role;
 
-//    public User(String login, String firstName, String lastName, String email, String password) {
-//        this.login = login;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.email = email;
-//        this.password = password;
-//    }
 }

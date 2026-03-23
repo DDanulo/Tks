@@ -23,8 +23,23 @@ public class ReservationRepository extends AbstractMongoRepository {
         ReservationEntitys = getRentAFieldDB().getCollection("ReservationEntitys", ReservationEntity.class);
     }
 
-    public void add(ReservationEntity obj) {
+    public ReservationEntity add(ReservationEntity obj) {
         ReservationEntitys.insertOne(obj);
+        return obj;
+    }
+
+    public ReservationEntity update(ObjectId id, ReservationEntity obj) {
+
+        Bson updateRoom = Updates.set("room", obj.getRoomEntity());
+        Bson updateUser = Updates.set("client", obj.getClientEntity());
+        Bson updateStartTime = Updates.set("start_time", obj.getStartTime());
+        Bson updateEndTime = Updates.set("end_time", obj.getEndTime());
+        Bson updatePrice = Updates.set("price", obj.getPrice());
+
+        ReservationEntitys.updateOne(Filters.eq("_id", id), Updates.combine(updateUser, updateRoom,
+                updateStartTime, updateEndTime, updatePrice));
+
+        return obj;
     }
 
     public void remove(ObjectId obj) {
@@ -41,17 +56,6 @@ public class ReservationRepository extends AbstractMongoRepository {
         return ReservationEntitys.find().into(new ArrayList<>());
     }
 
-    public void update(ObjectId id, ReservationEntity obj) {
-
-        Bson updateRoom = Updates.set("room", obj.getRoomEntity());
-        Bson updateUser = Updates.set("client", obj.getClientEntity());
-        Bson updateStartTime = Updates.set("start_time", obj.getStartTime());
-        Bson updateEndTime = Updates.set("end_time", obj.getEndTime());
-        Bson updatePrice = Updates.set("price", obj.getPrice());
-
-        ReservationEntitys.updateOne(Filters.eq("_id", id), Updates.combine(updateUser, updateRoom,
-                updateStartTime, updateEndTime, updatePrice));
-    }
 
     public List<ReservationEntity> findByClient(ObjectId clientId) {
         Bson filter = Filters.eq("client._id", clientId);

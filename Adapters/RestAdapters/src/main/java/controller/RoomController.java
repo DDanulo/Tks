@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-//@RequestMapping("/api/v1/rooms")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class RoomController {
@@ -20,7 +19,6 @@ public class RoomController {
     public static final String BASE_URL = "/api/v1/rooms";
     public static final String BASE_ID_URL = "/api/v1/rooms/{id}";
 
-//    private final RoomService roomService;
 
     private final RoomControllerAdapter roomControllerAdapter;
 

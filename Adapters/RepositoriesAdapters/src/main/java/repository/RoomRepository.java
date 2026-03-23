@@ -24,30 +24,25 @@ public class RoomRepository extends AbstractMongoRepository /*implements IReposi
         rooms = getRentAFieldDB().getCollection("rooms", RoomEntity.class);
     }
 
-//    @Override
     public RoomEntity add(RoomEntity obj) {
         rooms.insertOne(obj);
         return obj;
     }
 
-//    @Override
     public void remove(ObjectId obj) {
         Bson filter = Filters.eq("_id", obj);
         rooms.deleteOne(filter);
     }
 
-//    @Override
     public Optional<RoomEntity> findById(ObjectId id) {
         Bson filter = Filters.eq("_id", id);
         return Optional.ofNullable(rooms.find(filter).first());
     }
 
-//    @Override
     public List<RoomEntity> findAll() {
         return rooms.find().into(new ArrayList<>());
     }
 
-//    @Override
     public RoomEntity update(ObjectId id, RoomEntity obj) {
         Bson updateCapacity = Updates.set("capacity", obj.getCapacity());
         Bson updatePrice = Updates.set("base_price", obj.getBasePrice());

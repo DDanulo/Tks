@@ -3,5 +3,5 @@ package infrastructure.reservation;
 import domain.Reservation;
 
 public interface AddReservationPort {
-    void add(Reservation reservation);
+    Reservation add(Reservation reservation);
 }

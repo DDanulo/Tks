@@ -11,6 +11,7 @@ import model.ChangePasswordDTO;
 import model.users.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class UserControllerAdapter {
@@ -62,5 +63,13 @@ public class UserControllerAdapter {
 
     public void changePassword(String id, @Valid ChangePasswordDTO dto) {
         updateUserUseCase.changePassword(id, userMapper.updateUserFromChangePassword(dto));
+    }
+
+    public Optional<ShowUserDTO> getClientByLogin(String login) {
+        User user = getUserUseCase.findByLogin(login);
+        if (user != null) {
+            return Optional.of(userMapper.UserToDto(user));
+        }
+        return Optional.empty();
     }
 }
