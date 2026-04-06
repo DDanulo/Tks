@@ -9,47 +9,48 @@ import infrastructure.user.FindUsersPort;
 import infrastructure.user.RemoveUserPort;
 import infrastructure.user.UpdateUsersPort;
 import lombok.RequiredArgsConstructor;
-import mappers.UserMapper;
+import mappers.UserEntityMapper;
 import org.bson.types.ObjectId;
 import client.repo.UserRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
-
+@Component
 @RequiredArgsConstructor
 public class UserRepositoryAdapter implements AddUsersPort, FindUsersPort, RemoveUserPort, UpdateUsersPort {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final UserEntityMapper userEntityMapper;
 
     @Override
     public Client addClient(Client client) {
-        return (Client) userMapper.EntityToUser(userRepository.add(userMapper.toClientEntity(client)));
+        return (Client) userEntityMapper.EntityToUser(userRepository.add(userEntityMapper.toClientEntity(client)));
     }
 
     @Override
     public Admin addAdmin(Admin admin) {
-        return (Admin) userMapper.EntityToUser(userRepository.add(userMapper.toAdminEntity(admin)));
+        return (Admin) userEntityMapper.EntityToUser(userRepository.add(userEntityMapper.toAdminEntity(admin)));
     }
 
     @Override
     public Moderator addModerator(Moderator moderator) {
-        return (Moderator) userMapper.EntityToUser(userRepository.add(userMapper.toModeratorEntity(moderator)));
+        return (Moderator) userEntityMapper.EntityToUser(userRepository.add(userEntityMapper.toModeratorEntity(moderator)));
     }
 
     @Override
     public Optional<User> findById(String id) {
-        return userRepository.findById(new ObjectId(id)).map(userMapper::EntityToUser);
+        return userRepository.findById(new ObjectId(id)).map(userEntityMapper::EntityToUser);
     }
 
     @Override
     public Optional<User> findByLogin(String login) {
-        return userRepository.findByLogin(login).map(userMapper::EntityToUser);
+        return userRepository.findByLogin(login).map(userEntityMapper::EntityToUser);
     }
 
     @Override
     public List<User> findAll() {
-        return userRepository.findAll().stream().map(userMapper::EntityToUser).toList();
+        return userRepository.findAll().stream().map(userEntityMapper::EntityToUser).toList();
     }
 
     @Override
@@ -59,7 +60,7 @@ public class UserRepositoryAdapter implements AddUsersPort, FindUsersPort, Remov
 
     @Override
     public User update(String id, Client obj) {
-        return userMapper.EntityToUser(userRepository.update(new ObjectId(id), userMapper.toClientEntity(obj)));
+        return userEntityMapper.EntityToUser(userRepository.update(new ObjectId(id), userEntityMapper.toClientEntity(obj)));
     }
 
     @Override

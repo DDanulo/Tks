@@ -23,7 +23,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO credentials) {
-        User user = userServiceAdapter.findUserByLoginNoConvert(credentials.getLogin());
+        User user;
+
+        try {
+            user = userServiceAdapter.findUserByLoginNoConvert(credentials.getLogin());
+        } catch (exception.NotFoundException e) {
+            return ResponseEntity.status(401).body("Błędne hasło lub login");
+        }
+
         if (user == null) {
             return ResponseEntity.status(401).body("Błędne hasło lub login");
         }
@@ -37,7 +44,7 @@ public class AuthController {
             return ResponseEntity.status(401).body("Błędne hasło lub login");
         }
 
-        if (!user.getIsActive()) {
+        if (user.getIsActive() == null || !user.getIsActive()) {
             return ResponseEntity.status(403).body("Konto nie jest aktywne w systemie.");
         }
 
@@ -46,7 +53,6 @@ public class AuthController {
 
         return ResponseEntity.ok(new JwtTokenDTO(access, refresh));
     }
-
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");

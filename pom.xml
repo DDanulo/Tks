@@ -12,6 +12,7 @@
         <module>ApplicationCore</module>
         <module>Adapters</module>
         <module>ApplicationPorts</module>
+        <module>Application</module>
     </modules>
 
     <properties>

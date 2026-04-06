@@ -5,7 +5,7 @@ import domain.Room;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RoomMapper {
+public class RoomEntityMapper {
     public Room toRoom(RoomEntity roomEntity){
         return Room.builder()
                 .roomType(roomEntity.getRoomType())

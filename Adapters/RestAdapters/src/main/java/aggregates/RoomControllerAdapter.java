@@ -8,10 +8,12 @@ import lombok.RequiredArgsConstructor;
 import mappers.RoomMapper;
 import model.CreateRoomDTO;
 import model.ShowRoomDTO;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 @RequiredArgsConstructor
 public class RoomControllerAdapter {
 

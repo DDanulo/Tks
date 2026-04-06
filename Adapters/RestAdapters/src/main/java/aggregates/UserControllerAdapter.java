@@ -9,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 import mappers.UserMapper;
 import model.ChangePasswordDTO;
 import model.users.*;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 @RequiredArgsConstructor
 public class UserControllerAdapter {
     private final AddUserUseCase addUserUseCase;

@@ -12,7 +12,7 @@ import domain.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper {
+public class UserEntityMapper {
 
     public User EntityToUser(UserEntity user) {
         if (user == null) return null;

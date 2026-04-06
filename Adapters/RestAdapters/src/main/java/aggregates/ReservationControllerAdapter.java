@@ -9,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 import mappers.ReservationMapper;
 import model.CreateReservationDTO;
 import model.ShowReservationDTO;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 @RequiredArgsConstructor
 public class ReservationControllerAdapter {
 
