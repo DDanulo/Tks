@@ -43,9 +43,7 @@ public class AuthController {
         if (!result.verified) {
             return ResponseEntity.status(401).body("Błędne hasło lub login");
         }
-        System.out.println("dupa");
         if (user.getIsActive() == null || !user.getIsActive()) {
-            System.out.println("dupa");
             return ResponseEntity.status(403).body("Konto nie jest aktywne w systemie.");
         }
 
