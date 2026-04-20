@@ -79,14 +79,14 @@ public class ReservationServiceMongo implements AddReservationUseCase, GetReserv
 
     @Override
     public List<Reservation> findCurrentByRoomId(String roomId) {
-        return findReservationPort.findByUser(roomId).stream()
+        return findReservationPort.findByRoom(roomId).stream()
                 .filter(res -> res.getEndTime() == null || res.getEndTime().isAfter(LocalDateTime.now()))
                 .toList();
     }
 
     @Override
     public List<Reservation> findPastByRoomId(String roomId) {
-        return findReservationPort.findByUser(roomId).stream()
+        return findReservationPort.findByRoom(roomId).stream()
                 .filter(res -> res.getEndTime() != null && res.getEndTime().isBefore(LocalDateTime.now()))
                 .toList();
     }

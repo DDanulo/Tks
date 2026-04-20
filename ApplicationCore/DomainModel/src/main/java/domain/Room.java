@@ -19,7 +19,7 @@ public class Room {
         this.basePrice = basePrice;
     }
     @NotNull
-    private ObjectId roomId;
+    private String roomId;
 
     @NotNull
     private RoomType roomType;

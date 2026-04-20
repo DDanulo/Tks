@@ -48,6 +48,7 @@ public class RoomRepository extends AbstractMongoRepository /*implements IReposi
         Bson updatePrice = Updates.set("base_price", obj.getBasePrice());
         Bson updateRoomType = Updates.set("room_type", obj.getRoomType());
         rooms.updateOne(Filters.eq("_id", id), Updates.combine(updatePrice, updateCapacity, updateRoomType));
+        obj.setRoomId(id);
         return obj;
     }
 }

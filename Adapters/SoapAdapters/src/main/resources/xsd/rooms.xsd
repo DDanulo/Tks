@@ -1,0 +1,86 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://rentafield.com/tks/soap/rooms"
+           targetNamespace="http://rentafield.com/tks/soap/rooms"
+           elementFormDefault="qualified">
+
+    <xs:element name="getRoomRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getRoomResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="room" type="tns:RoomSOAP"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="addRoomRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="roomType" type="xs:string"/>
+                <xs:element name="capacity" type="xs:int"/>
+                <xs:element name="basePrice" type="xs:double"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="addRoomResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="room" type="tns:RoomSOAP"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="updateRoomRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:string"/>
+                <xs:element name="roomType" type="xs:string"/>
+                <xs:element name="capacity" type="xs:int"/>
+                <xs:element name="basePrice" type="xs:double"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="updateRoomResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="room" type="tns:RoomSOAP"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="removeRoomRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="removeRoomResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="status" type="xs:boolean"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+
+    <xs:complexType name="RoomSOAP">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="roomType" type="xs:string"/>
+            <xs:element name="capacity" type="xs:int"/>
+            <xs:element name="basePrice" type="xs:double"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

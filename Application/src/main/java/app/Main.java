@@ -12,7 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "mappers",
         "aggregates",
         "client.repo",
-        "repository"
+        "repository",
+        "controllers"
 })
 public class Main {
     public static void main(String[] args) {

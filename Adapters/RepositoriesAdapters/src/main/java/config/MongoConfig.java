@@ -18,6 +18,7 @@ import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,9 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 
 @Configuration
 public class MongoConfig {
+
+    @Value("${spring.data.mongodb.uri:mongodb://mongodb1:27017/?replicaSet=replica_set_single&authSource=admin}")
+    private String mongoUri;
 
     @Bean
     public CodecRegistry pojoCodecRegistry() {
@@ -41,15 +45,10 @@ public class MongoConfig {
 
     @Bean
     public MongoClient mongoClient(CodecRegistry pojoCodecRegistry) {
-        ConnectionString connectionString = new ConnectionString(
-                "mongodb://mongodb1:27017/?replicaSet=replica_set_single&authSource=admin");
-
-        MongoCredential credential = MongoCredential.createCredential(
-                "admin", "admin", "adminpassword".toCharArray());
+        ConnectionString connectionString = new ConnectionString(mongoUri);
 
         MongoClientSettings settings = MongoClientSettings.builder()
-                .credential(credential)
-                .applyConnectionString(connectionString)
+                .applyConnectionString(connectionString) // URI handles auth if present
                 .uuidRepresentation(UuidRepresentation.STANDARD)
                 .codecRegistry(CodecRegistries.fromRegistries(
                         MongoClientSettings.getDefaultCodecRegistry(),
@@ -66,11 +65,10 @@ public class MongoConfig {
     }
 
     @Bean
-    public CommandLineRunner ensureIndexesAndDrop() {
+    public CommandLineRunner ensureIndexesAndDrop(MongoDatabase rentAFieldDB) {
         return args -> {
-            MongoCollection<UserEntity> users = rentAFieldDB(
-                    mongoClient(pojoCodecRegistry())).getCollection("users", UserEntity.class
-            );
+            MongoCollection<UserEntity> users = rentAFieldDB
+                    .getCollection("users", UserEntity.class);
             users.drop();
             UserEntity admin = new AdminEntity();
             admin.setLogin("admin");

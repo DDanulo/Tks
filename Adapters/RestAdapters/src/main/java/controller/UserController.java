@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
-//    private final UserService userService;
     private final UserControllerAdapter userControllerAdapter;
     private final JwtService jwtService;
     @RolesAllowed("ADMIN")

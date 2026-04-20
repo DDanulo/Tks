@@ -27,7 +27,7 @@ public class RoomMapper {
 
     public Room showRoomDTOToRoom(ShowRoomDTO roomDTO){
         return Room.builder()
-                .roomId(new ObjectId(roomDTO.getId()))
+                .roomId(roomDTO.getId())
                 .roomType(roomDTO.getRoomType())
                 .basePrice(roomDTO.getBasePrice())
                 .capacity(roomDTO.getCapacity())
@@ -36,7 +36,7 @@ public class RoomMapper {
 
     public ShowRoomDTO roomToShowRoomDTO(Room room){
         return ShowRoomDTO.builder()
-                .id(room.getRoomId().toString())
+                .id(room.getRoomId())
                 .roomType(room.getRoomType())
                 .basePrice(room.getBasePrice())
                 .capacity(room.getCapacity())

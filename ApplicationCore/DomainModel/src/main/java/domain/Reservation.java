@@ -14,7 +14,7 @@ import java.time.ZoneOffset;
 @Builder
 public class Reservation {
     @NotNull
-    private ObjectId reservationId;
+    private String reservationId;
 
     @NotNull
     private Room room;
@@ -39,7 +39,7 @@ public class Reservation {
         return (double) (endTime.toEpochSecond(ZoneOffset.UTC) - startTime.toEpochSecond(ZoneOffset.UTC)) / 60 / 60;
     }
 
-    public Reservation(ObjectId reservationId, Room room, Client client, LocalDateTime startTime, Double price) {
+    public Reservation(String reservationId, Room room, Client client, LocalDateTime startTime, Double price) {
         this.reservationId = reservationId;
         this.room = room;
         this.client = client;

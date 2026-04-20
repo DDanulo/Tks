@@ -15,7 +15,7 @@ public class UserMapper {
         if (user == null) return null;
 
         ShowUserDTO base = ShowUserDTO.builder()
-                .id(user.getUserId().toString())
+                .id(user.getUserId() != null ? user.getUserId(): null)
                 .login(user.getLogin())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
@@ -61,6 +61,7 @@ public class UserMapper {
         Client client = new Client();
         client.setLogin(dto.getLogin());
         client.setEmail(dto.getEmail());
+        client.setPassword(dto.getPassword());
         client.setFirstName(dto.getFirstName());
         client.setLastName(dto.getLastName());
         client.setRole(Role.CLIENT);
@@ -72,6 +73,7 @@ public class UserMapper {
         Moderator moderator = new Moderator();
         moderator.setLogin(dto.getLogin());
         moderator.setEmail(dto.getEmail());
+        moderator.setPassword(dto.getPassword());
         moderator.setFirstName(dto.getFirstName());
         moderator.setLastName(dto.getLastName());
         moderator.setRole(Role.MODERATOR);
@@ -83,6 +85,7 @@ public class UserMapper {
         Admin admin = new Admin();
         admin.setLogin(dto.getLogin());
         admin.setEmail(dto.getEmail());
+        admin.setPassword(dto.getPassword());
         admin.setFirstName(dto.getFirstName());
         admin.setLastName(dto.getLastName());
         admin.setRole(Role.ADMIN);

@@ -14,6 +14,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ShowRoomDTO {
 
+    @NotNull
     private String id;
 
     @NotNull
