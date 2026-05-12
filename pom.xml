@@ -9,11 +9,8 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>ApplicationCore</module>
-        <module>Adapters</module>
-        <module>ApplicationPorts</module>
-        <module>Application</module>
-        <module>Adapters/SoapAdapters</module>
+        <module>UserService</module>
+        <module>ReservationService</module>
     </modules>
 
     <properties>

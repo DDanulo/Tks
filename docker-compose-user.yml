@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  user-db:
+    image: mongo:8.0.1 # lub Twój mongocustom
+    container_name: user_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=users_db
+    volumes:
+      - user-db-data:/data/db
+
+  rent-db:
+    image: mongo:8.0.1 # lub Twój mongocustom
+    container_name: rent_mongodb
+    ports:
+      - "27018:27017" # Mapujemy port 27018 na zewnątrz, żeby uniknąć konfliktu
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=reservations_db
+    volumes:
+      - rent-db-data:/data/db
+
+volumes:
+  user-db-data:
+  rent-db-data:
